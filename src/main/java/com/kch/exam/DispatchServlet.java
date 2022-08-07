@@ -29,6 +29,7 @@ public class DispatchServlet extends HttpServlet {
                         articleController.showDetail(rq);
                         break;
                     case "/usr/article/delete":
+                        System.out.println("ewltkjwel");
                         articleController.doDelete(rq);
                         break;
                     case "/usr/article/list":
