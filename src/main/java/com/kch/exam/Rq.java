@@ -48,6 +48,7 @@ public class Rq {
             return defaultValue;
         }
     }
+
     public void print(String str) {
         try {
             resp.getWriter().append(str);
@@ -86,20 +87,26 @@ public class Rq {
         return "/%s/%s/%s".formatted(bits[1], bits[2], bits[3]);
     }
 
-    public String getMethod() {
+    public String getRouteMethod() {
+        String method = getParam("_method", "");
+
+        if (method.length() > 0 ) {
+            return method.toUpperCase();
+        }
+
         return req.getMethod();
     }
+
     public long getLongPathValueByIndex(int index, long defaultValue) {
         String value = getPathValueByIndex(index, null);
 
-        if ( value == null ) {
+        if (value == null) {
             return defaultValue;
         }
 
         try {
             return Long.parseLong(value);
-        }
-        catch ( NumberFormatException e ) {
+        } catch (NumberFormatException e) {
             return defaultValue;
         }
     }
@@ -113,6 +120,7 @@ public class Rq {
             return defaultValue;
         }
     }
+
     public void replace(String uri, String msg) {
         if (msg != null && msg.trim().length() > 0) {
             println("""
