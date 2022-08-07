@@ -3,7 +3,6 @@ package com.kch.exam.article;
 import com.kch.exam.Rq;
 import com.kch.exam.article.dto.ArticleDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleController {
@@ -28,23 +27,34 @@ public class ArticleController {
         String title = rq.getParam("title", "");
         String body = rq.getParam("body", "");
 
+        if (title.length() == 0) {
+            rq.historyBack("제목을 입력해주세요.");
+            return;
+        }
+
+        if (body.length() == 0) {
+            rq.historyBack("내용을 입력해주세요.");
+            return;
+        }
+
         long id = articleService.write(title, body);
 
-        rq.appendBody("%d번 게시물이 생성 되었습니다.".formatted(id));
+        rq.replace("/usr/article/detail/free/%d".formatted(id), "%d번 게시물이 생성 되었습니다.".formatted(id));
+
     }
 
     public void showDetail(Rq rq) {
         long id = rq.getLongPathValueByIndex(1, 0);
 
         if (id == 0) {
-            rq.appendBody("번호를 입력해주세요.");
+            rq.historyBack("번호를 입력해주세요.");
             return;
         }
 
         ArticleDto articleDto = articleService.findById(id);
 
         if (articleDto == null) {
-            rq.appendBody("해당 글이 존재하지 않습니다.");
+            rq.historyBack("해당 글이 존재하지 않습니다.");
             return;
         }
 
@@ -56,35 +66,34 @@ public class ArticleController {
         long id = rq.getLongPathValueByIndex(1, 0);
 
         if (id == 0) {
-            rq.appendBody("번호를 입력해주세요.");
+            rq.historyBack("번호를 입력해주세요.");
             return;
         }
 
         ArticleDto articleDto = articleService.findById(id);
 
         if (articleDto == null) {
-            rq.appendBody("해당 글이 존재하지 않습니다.");
+            rq.historyBack("해당 글이 존재하지 않습니다.");
             return;
         }
 
         articleService.delete(id);
 
-        rq.appendBody("<div>%d번 게시물이 삭제되었습니다.</div>".formatted(id));
-        rq.appendBody("<div><a href=\"/usr/article/list/free\">리스트로 이동</a></div>".formatted(id));
+        rq.replace("/usr/article/list/free", "%d번 게시물이 삭제되었습니다.".formatted(id));
     }
 
     public void showModify(Rq rq) {
         long id = rq.getLongPathValueByIndex(1, 0);
 
         if (id == 0) {
-            rq.appendBody("번호를 입력해주세요.");
+            rq.historyBack("번호를 입력해주세요.");
             return;
         }
 
         ArticleDto articleDto = articleService.findById(id);
 
         if (articleDto == null) {
-            rq.appendBody("해당 글이 존재하지 않습니다.");
+            rq.historyBack("해당 글이 존재하지 않습니다.");
             return;
         }
 
@@ -94,11 +103,26 @@ public class ArticleController {
 
     public void doModify(Rq rq) {
         long id = rq.getLongPathValueByIndex(1, 0);
+
+        if (id == 0) {
+            rq.historyBack("번호를 입력해주세요.");
+            return;
+        }
+
+        ArticleDto articleDto = articleService.findById(id);
+
+        if (articleDto == null) {
+            rq.historyBack("해당 글이 존재하지 않습니다.");
+            return;
+        }
+
         String title = rq.getParam("title", "");
         String body = rq.getParam("body", "");
 
-        rq.appendBody("<div>id : %d</div>".formatted(id));
-        rq.appendBody("<div>title : %s</div>".formatted(title));
-        rq.appendBody("<div>body : %s</div>".formatted(body));
+        articleService.modify(id, title, body);
+
+        // 브라우저에게 해당 URI로 이동하는 자바스크립트를 전송해주세요.
+        // 혹시 그 전에 전할 메세지가 있다면 alert 로 표시되도록 자바스크립트를 구성해주세요.
+        rq.replace("/usr/article/detail/free/%d".formatted(id), "%d번 게시물이 수정되었습니다.".formatted(id));
     }
 }
